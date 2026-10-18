@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electrical Engineering Simulator</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-mark">EE</div>
+    <div>
+      <p class="eyebrow">LABORATORIUM VIRTUAL</p>
+      <h1>Electrical Engineering Simulator</h1>
+      <p class="subtitle">Skin Effect · Rugi-Rugi Daya Kabel · Analisis Dasar</p>
+    </div>
+    <span class="status"><span></span> MODE SIMULASI</span>
+  </header>
+
+  <main class="container">
+    <section class="intro panel">
+      <div>
+        <p class="eyebrow">DASHBOARD UTAMA</p>
+        <h2>Pelajari apa yang terjadi di dalam kabel</h2>
+        <p>Ubah parameter listrik dan lihat bagaimana resistansi, rugi daya, penurunan tegangan, serta skin depth berubah.</p>
+      </div>
+      <div class="intro-symbol" aria-hidden="true">〰</div>
+    </section>
+
+    <nav class="tabs" aria-label="Menu simulasi">
+      <button class="tab active" data-target="loss-section">Rugi daya kabel</button>
+      <button class="tab" data-target="skin-section">Skin effect</button>
+      <button class="tab" data-target="theory-section">Rumus & panduan</button>
+    </nav>
+
+    <section id="loss-section" class="page-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">MODUL 01</p>
+          <h2>Kalkulator rugi-rugi daya</h2>
+        </div>
+        <span class="tag">Model resistansi DC dasar</span>
+      </div>
+
+      <div class="two-column">
+        <article class="panel controls">
+          <h3>Parameter kabel</h3>
+          <p class="muted">Ubah nilai di bawah. Hasil dihitung otomatis.</p>
+
+          <label for="material">Bahan konduktor</label>
+          <select id="material">
+            <option value="copper">Tembaga (Cu)</option>
+            <option value="aluminum">Aluminium (Al)</option>
+          </select>
+
+          <div class="field-heading">
+            <label for="current">Arus listrik</label>
+            <output id="current-output">20 A</output>
+          </div>
+          <input id="current" type="range" min="1" max="100" value="20" step="1">
+          <div class="range-labels"><span>1 A</span><span>100 A</span></div>
+
+          <div class="field-heading">
+            <label for="length">Panjang satu penghantar</label>
+            <output id="length-output">100 m</output>
+          </div>
+          <input id="length" type="range" min="10" max="500" value="100" step="10">
+          <div class="range-labels"><span>10 m</span><span>500 m</span></div>
+
+          <div class="field-heading">
+            <label for="area">Luas penampang</label>
+            <output id="area-output">10 mm²</output>
+          </div>
+          <input id="area" type="range" min="1" max="100" value="10" step="1">
+          <div class="range-labels"><span>1 mm²</span><span>100 mm²</span></div>
+
+          <div class="field-heading">
+            <label for="voltage">Tegangan sumber</label>
+            <output id="voltage-output">230 V</output>
+          </div>
+          <input id="voltage" type="range" min="12" max="400" value="230" step="1">
+          <div class="range-labels"><span>12 V</span><span>400 V</span></div>
+
+          <div class="field-heading">
+            <label for="hours">Lama operasi per hari</label>
+            <output id="hours-output">8 jam</output>
+          </div>
+          <input id="hours" type="range" min="1" max="24" value="8" step="1">
+          <div class="range-labels"><span>1 jam</span><span>24 jam</span></div>
+
+          <button id="reset-loss" class="secondary-button" type="button">Kembalikan nilai awal</button>
+        </article>
+
+        <div class="results-column">
+          <div class="metric-grid">
+            <article class="metric panel">
+              <span class="metric-label">Resistansi kabel</span>
+              <strong id="resistance-result">0,1680 Ω</strong>
+              <small>R = ρ × L / A</small>
+            </article>
+            <article class="metric panel">
+              <span class="metric-label">Rugi daya</span>
+              <strong id="loss-result">67,20 W</strong>
+              <small>P = I² × R</small>
+            </article>
+            <article class="metric panel">
+              <span class="metric-label">Penurunan tegangan</span>
+              <strong id="drop-result">3,36 V</strong>
+              <small>ΔV = I × R</small>
+            </article>
+            <article class="metric panel">
+              <span class="metric-label">Energi hilang per hari</span>
+              <strong id="energy-result">0,538 kWh</strong>
+              <small>E = P × waktu</small>
+            </article>
+          </div>
+
+          <article class="panel chart-panel">
+            <div class="chart-title">
+              <div>
+                <h3>Pengaruh arus terhadap rugi daya</h3>
+                <p class="muted">Resistansi dianggap tetap pada setiap titik grafik.</p>
+              </div>
+              <span class="chart-icon">↗</span>
+            </div>
+            <div class="chart-wrap"><canvas id="lossChart" aria-label="Grafik arus terhadap rugi daya"></canvas></div>
+          </article>
+
+          <article class="panel explanation">
+            <h3>Interpretasi hasil</h3>
+            <p id="loss-explanation">Hasil penjelasan akan muncul di sini.</p>
+            <p class="warning-note"><strong>Catatan:</strong> model ini memakai resistivitas sekitar 20°C dan panjang satu penghantar. Untuk jalur pergi-pulang DC dua kawat, total panjang penghantar perlu dihitung sesuai jalur arus. Belum memasukkan pemanasan kabel, reaktansi, atau skin effect.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="skin-section" class="page-section hidden">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">MODUL 02</p>
+          <h2>Simulasi skin effect</h2>
+        </div>
+        <span class="tag">Pendekatan konduktor bulat homogen</span>
+      </div>
+      <div class="two-column">
+        <article class="panel controls">
+          <h3>Parameter skin effect</h3>
+          <p class="muted">Skin depth adalah ukuran karakteristik kedalaman penetrasi arus AC dari permukaan konduktor.</p>
+
+          <label for="skin-material">Bahan konduktor</label>
+          <select id="skin-material">
+            <option value="copper">Tembaga (Cu)</option>
+            <option value="aluminum">Aluminium (Al)</option>
+          </select>
+
+          <div class="field-heading">
+            <label for="frequency">Frekuensi AC</label>
+            <output id="frequency-output">50 Hz</output>
+          </div>
+          <input id="frequency" type="range" min="1" max="100000" value="50" step="1">
+          <div class="range-labels"><span>1 Hz</span><span>100 kHz</span></div>
+
+          <div class="field-heading">
+            <label for="radius">Jari-jari konduktor</label>
+            <output id="radius-output">5 mm</output>
+          </div>
+          <input id="radius" type="range" min="1" max="30" value="5" step="1">
+          <div class="range-labels"><span>1 mm</span><span>30 mm</span></div>
+
+          <div class="field-heading">
+            <label for="ac-current">Arus AC (nilai RMS)</label>
+            <output id="ac-current-output">20 A</output>
+          </div>
+          <input id="ac-current" type="range" min="1" max="100" value="20" step="1">
+          <div class="range-labels"><span>1 A</span><span>100 A</span></div>
+        </article>
+
+        <div class="results-column">
+          <div class="metric-grid">
+            <article class="metric panel">
+              <span class="metric-label">Skin depth</span>
+              <strong id="skin-depth-result">9,23 mm</strong>
+              <small>δ = √(ρ / πfμ)</small>
+            </article>
+            <article class="metric panel">
+              <span class="metric-label">Perbandingan radius / δ</span>
+              <strong id="ratio-result">0,54</strong>
+              <small>Radius relatif terhadap skin depth</small>
+            </article>
+          </div>
+          <article class="panel visual-panel">
+            <div class="chart-title">
+              <div>
+                <h3>Penampang konduktor</h3>
+                <p class="muted">Ilustrasi konseptual distribusi arus AC.</p>
+              </div>
+              <span class="tag" id="skin-regime">Efek relatif kecil</span>
+            </div>
+            <div class="conductor-stage">
+              <svg id="conductor-svg" viewBox="0 0 320 250" role="img" aria-label="Ilustrasi penampang kabel dengan arus lebih terkonsentrasi di permukaan">
+                <defs>
+                  <radialGradient id="copperFill">
+                    <stop offset="0%" stop-color="#f4c98c"/>
+                    <stop offset="70%" stop-color="#d98b45"/>
+                    <stop offset="100%" stop-color="#ffefb0"/>
+                  </radialGradient>
+                </defs>
+                <circle cx="160" cy="120" r="83" fill="url(#copperFill)" stroke="#ffd98a" stroke-width="2"/>
+                <circle id="core-circle" cx="160" cy="120" r="60" fill="#a8c6d9" fill-opacity="0.85" stroke="#eaf6ff" stroke-dasharray="4 4"/>
+                <circle cx="160" cy="120" r="83" fill="none" stroke="#ff9f43" stroke-width="4"/>
+                <text x="160" y="224" fill="currentColor" text-anchor="middle" font-size="12">Permukaan konduktor</text>
+                <text id="core-label" x="160" y="124" fill="#102033" text-anchor="middle" font-size="12" font-weight="700">Bagian dalam</text>
+              </svg>
+              <div class="legend"><span><i class="dot surface-dot"></i>Daerah permukaan</span><span><i class="dot core-dot"></i>Bagian dalam</span></div>
+            </div>
+            <p id="skin-explanation" class="interpretation"></p>
+          </article>
+          <article class="panel chart-panel">
+            <div class="chart-title">
+              <div>
+                <h3>Skin depth terhadap frekuensi</h3>
+                <p class="muted">Semakin tinggi frekuensi, skin depth semakin kecil.</p>
+              </div>
+            </div>
+            <div class="chart-wrap"><canvas id="skinChart" aria-label="Grafik skin depth terhadap frekuensi"></canvas></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="theory-section" class="page-section hidden">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">MODUL 03</p>
+          <h2>Rumus dan panduan</h2>
+        </div>
+      </div>
+      <div class="theory-grid">
+        <article class="panel theory-card">
+          <span class="formula-number">01</span>
+          <h3>Resistansi kabel</h3>
+          <div class="formula">R = ρL / A</div>
+          <p>R adalah resistansi (Ω), ρ resistivitas (Ω·m), L panjang penghantar (m), dan A luas penampang (m²).</p>
+        </article>
+        <article class="panel theory-card">
+          <span class="formula-number">02</span>
+          <h3>Rugi daya resistif</h3>
+          <div class="formula">P<sub>loss</sub> = I²R</div>
+          <p>P adalah daya hilang (W), I arus (A), dan R resistansi (Ω). Berlaku untuk model resistif yang digunakan di kalkulator.</p>
+        </article>
+        <article class="panel theory-card">
+          <span class="formula-number">03</span>
+          <h3>Penurunan tegangan</h3>
+          <div class="formula">ΔV = IR</div>
+          <p>Model dasar untuk satu resistansi yang dialiri arus. Pada sistem AC, reaktansi dan faktor daya dapat memengaruhi hasil.</p>
+        </article>
+        <article class="panel theory-card">
+          <span class="formula-number">04</span>
+          <h3>Skin depth</h3>
+          <div class="formula">δ = √(ρ / πfμ)</div>
+          <p>f adalah frekuensi (Hz), μ permeabilitas absolut (H/m), dan δ skin depth (m). Ini merupakan pendekatan untuk konduktor homogen.</p>
+        </article>
+      </div>
+      <article class="panel warning-panel">
+        <h3>Batasan model</h3>
+        <ul>
+          <li>Rugi daya pada modul pertama dihitung dari resistansi dasar, bukan resistansi AC yang telah dikoreksi skin effect.</li>
+          <li>Ilustrasi penampang adalah diagram konseptual, bukan simulasi medan elektromagnetik numerik.</li>
+          <li>Perhitungan tidak menggantikan desain instalasi, penentuan kemampuan hantar arus, atau pemeriksaan keselamatan oleh tenaga kompeten.</li>
+        </ul>
+      </article>
+    </section>
+
+    <footer>
+      <span>Electrical Engineering Simulator · Proyek belajar pemula</span>
+      <span>Model edukasi, bukan alat sertifikasi instalasi.</span>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
